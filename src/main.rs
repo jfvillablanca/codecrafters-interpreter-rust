@@ -77,6 +77,32 @@ fn tokenizer(file_contents: String) {
                     println!("BANG ! null");
                 }
             }
+            '<' => {
+                if let Some(next_lexeme) = lexemes.peek() {
+                    match next_lexeme {
+                        '=' => {
+                            println!("LESS_EQUAL <= null");
+                            lexemes.next();
+                        }
+                        _ => println!("LESS < null"),
+                    }
+                } else {
+                    println!("LESS < null");
+                }
+            }
+            '>' => {
+                if let Some(next_lexeme) = lexemes.peek() {
+                    match next_lexeme {
+                        '=' => {
+                            println!("GREATER_EQUAL >= null");
+                            lexemes.next();
+                        }
+                        _ => println!("GREATER > null"),
+                    }
+                } else {
+                    println!("GREATER > null");
+                }
+            }
             invalid_lexeme => {
                 had_error = true;
                 eprintln!("[line 1] Error: Unexpected character: {}", invalid_lexeme);
