@@ -57,11 +57,24 @@ fn tokenizer(file_contents: String) {
                         '=' => {
                             println!("EQUAL_EQUAL == null");
                             lexemes.next();
-                        },
+                        }
                         _ => println!("EQUAL = null"),
                     }
                 } else {
                     println!("EQUAL = null");
+                }
+            }
+            '!' => {
+                if let Some(next_lexeme) = lexemes.peek() {
+                    match next_lexeme {
+                        '=' => {
+                            println!("BANG_EQUAL != null");
+                            lexemes.next();
+                        }
+                        _ => println!("BANG ! null"),
+                    }
+                } else {
+                    println!("BANG ! null");
                 }
             }
             invalid_lexeme => {
