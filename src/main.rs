@@ -1,3 +1,4 @@
+#![allow(clippy::explicit_write)]
 use std::env;
 use std::fs;
 use std::io::{self, Write};
@@ -22,16 +23,22 @@ fn main() {
                 String::new()
             });
 
-            // Uncomment this block to pass the first stage
-            if !file_contents.is_empty() {
-                panic!("Scanner not implemented");
-            } else {
-                println!("EOF  null"); // Placeholder, remove this line when implementing the scanner
-            }
+            tokenizer(file_contents);
         }
         _ => {
             writeln!(io::stderr(), "Unknown command: {}", command).unwrap();
             return;
         }
     }
+}
+
+fn tokenizer(file_contents: String) {
+    for lexeme in file_contents.chars() {
+        match lexeme {
+            '(' => println!("LEFT_PAREN ( null"),
+            ')' => println!("RIGHT_PAREN ) null"),
+            _ => {}
+        }
+    }
+    println!("EOF  null");
 }
