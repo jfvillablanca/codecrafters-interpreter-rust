@@ -36,7 +36,10 @@ fn main() {
 
 fn tokenizer(file_contents: String) {
     let mut had_error = false;
-    for lexeme in file_contents.chars() {
+
+    let mut lexemes = file_contents.chars().peekable();
+    while let Some(lexeme) = lexemes.next() {
+        dbg!(lexeme);
         match lexeme {
             '(' => println!("LEFT_PAREN ( null"),
             ')' => println!("RIGHT_PAREN ) null"),
@@ -48,6 +51,19 @@ fn tokenizer(file_contents: String) {
             '+' => println!("PLUS + null"),
             ';' => println!("SEMICOLON ; null"),
             '*' => println!("STAR * null"),
+            '=' => {
+                if let Some(next_lexeme) = lexemes.peek() {
+                    match next_lexeme {
+                        '=' => {
+                            println!("EQUAL_EQUAL == null");
+                            lexemes.next();
+                        },
+                        _ => println!("EQUAL = null"),
+                    }
+                } else {
+                    println!("EQUAL = null");
+                }
+            }
             invalid_lexeme => {
                 had_error = true;
                 eprintln!("[line 1] Error: Unexpected character: {}", invalid_lexeme);
