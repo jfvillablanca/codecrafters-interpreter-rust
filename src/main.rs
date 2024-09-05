@@ -3,6 +3,8 @@ use std::env;
 use std::fs;
 use std::io::{self, Write};
 
+const EXIT_CODE_INVALID_CHARACTER: i32 = 65;
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 3 {
@@ -33,6 +35,7 @@ fn main() {
 }
 
 fn tokenizer(file_contents: String) {
+    let mut had_error = false;
     for lexeme in file_contents.chars() {
         match lexeme {
             '(' => println!("LEFT_PAREN ( null"),
@@ -45,8 +48,14 @@ fn tokenizer(file_contents: String) {
             '+' => println!("PLUS + null"),
             ';' => println!("SEMICOLON ; null"),
             '*' => println!("STAR * null"),
-            _ => {}
+            invalid_lexeme => {
+                had_error = true;
+                eprintln!("[line 1] Error: Unexpected character: {}", invalid_lexeme);
+            }
         }
     }
     println!("EOF  null");
+    if had_error {
+        std::process::exit(EXIT_CODE_INVALID_CHARACTER);
+    }
 }
