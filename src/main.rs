@@ -86,9 +86,13 @@ fn tokenizer(file_contents: String) {
                     println!("SLASH / null");
                 }
             }
-            invalid_lexeme => {
-                had_error = true;
-                eprintln!("[line 1] Error: Unexpected character: {}", invalid_lexeme);
+            other_lexeme => {
+                if other_lexeme.is_whitespace() {
+                    continue;
+                } else {
+                    had_error = true;
+                    eprintln!("[line 1] Error: Unexpected character: {}", other_lexeme);
+                }
             }
         }
     }
