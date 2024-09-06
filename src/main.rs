@@ -5,6 +5,22 @@ use std::io::{self, Write};
 
 const EXIT_CODE_INVALID_CHARACTER: i32 = 65;
 
+macro_rules! two_chars {
+    ($second:expr, $token:expr, $default:expr, $lexemes:expr) => {{
+        if let Some(next_lexeme) = $lexemes.peek() {
+            match next_lexeme {
+                $second => {
+                    println!("{}", $token);
+                    $lexemes.next();
+                }
+                _ => println!($default),
+            }
+        } else {
+            println!($default);
+        }
+    }};
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 3 {
@@ -39,7 +55,6 @@ fn tokenizer(file_contents: String) {
 
     let mut lexemes = file_contents.chars().peekable();
     while let Some(lexeme) = lexemes.next() {
-        dbg!(lexeme);
         match lexeme {
             '(' => println!("LEFT_PAREN ( null"),
             ')' => println!("RIGHT_PAREN ) null"),
@@ -51,46 +66,10 @@ fn tokenizer(file_contents: String) {
             '+' => println!("PLUS + null"),
             ';' => println!("SEMICOLON ; null"),
             '*' => println!("STAR * null"),
-            '=' => {
-                if let Some(next_lexeme) = lexemes.peek() {
-                    match next_lexeme {
-                        '=' => {
-                            println!("EQUAL_EQUAL == null");
-                            lexemes.next();
-                        }
-                        _ => println!("EQUAL = null"),
-                    }
-                } else {
-                    println!("EQUAL = null");
-                }
-            }
-            '!' => {
-                if let Some(next_lexeme) = lexemes.peek() {
-                    match next_lexeme {
-                        '=' => {
-                            println!("BANG_EQUAL != null");
-                            lexemes.next();
-                        }
-                        _ => println!("BANG ! null"),
-                    }
-                } else {
-                    println!("BANG ! null");
-                }
-            }
-            '<' => {
-                if let Some(next_lexeme) = lexemes.peek() {
-                    match next_lexeme {
-                        '=' => {
-                            println!("LESS_EQUAL <= null");
-                            lexemes.next();
-                        }
-                        _ => println!("LESS < null"),
-                    }
-                } else {
-                    println!("LESS < null");
-                }
-            }
-            '>' => {
+            '=' => two_chars!('=', "EQUAL_EQUAL == null", "EQUAL = null", lexemes),
+            '!' => two_chars!('=', "BANG_EQUAL != null", "BANG ! null", lexemes),
+            '<' => two_chars!('=', "LESS_EQUAL <= null", "LESS < null", lexemes),
+            '>' => two_chars!('=', "GREATER_EQUAL >= null", "GREATER > null", lexemes),
                 if let Some(next_lexeme) = lexemes.peek() {
                     match next_lexeme {
                         '=' => {
