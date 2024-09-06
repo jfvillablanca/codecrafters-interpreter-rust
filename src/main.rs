@@ -70,16 +70,21 @@ fn tokenizer(file_contents: String) {
             '!' => two_chars!('=', "BANG_EQUAL != null", "BANG ! null", lexemes),
             '<' => two_chars!('=', "LESS_EQUAL <= null", "LESS < null", lexemes),
             '>' => two_chars!('=', "GREATER_EQUAL >= null", "GREATER > null", lexemes),
+            '/' => {
                 if let Some(next_lexeme) = lexemes.peek() {
                     match next_lexeme {
-                        '=' => {
-                            println!("GREATER_EQUAL >= null");
+                        '/' => {
                             lexemes.next();
+                            while let Some(next_next_lexeme) = lexemes.next() {
+                                if next_next_lexeme == '\n' {
+                                    break;
+                                }
+                            }
                         }
-                        _ => println!("GREATER > null"),
+                        _ => println!("SLASH / null"),
                     }
                 } else {
-                    println!("GREATER > null");
+                    println!("SLASH / null");
                 }
             }
             invalid_lexeme => {
