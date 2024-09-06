@@ -51,6 +51,7 @@ fn main() {
 
 fn tokenizer(file_contents: String) {
     let mut had_error = false;
+    let mut error_line_number = 1;
 
     let mut lexemes = file_contents.chars().peekable();
     while let Some(lexeme) = lexemes.next() {
@@ -76,6 +77,7 @@ fn tokenizer(file_contents: String) {
                             lexemes.next();
                             while let Some(next_next_lexeme) = lexemes.next() {
                                 if next_next_lexeme == '\n' {
+                                    error_line_number += 1;
                                     break;
                                 }
                             }
@@ -88,10 +90,17 @@ fn tokenizer(file_contents: String) {
             }
             other_lexeme => {
                 if other_lexeme.is_whitespace() {
+                    if other_lexeme == '\n' {
+                        error_line_number += 1;
+                    }
                     continue;
                 } else {
+                    dbg!(other_lexeme, error_line_number);
                     had_error = true;
-                    eprintln!("[line 1] Error: Unexpected character: {}", other_lexeme);
+                    eprintln!(
+                        "[line {}] Error: Unexpected character: {}",
+                        error_line_number, other_lexeme
+                    );
                 }
             }
         }
