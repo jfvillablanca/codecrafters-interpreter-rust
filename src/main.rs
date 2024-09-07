@@ -88,6 +88,36 @@ fn tokenizer(file_contents: String) {
                     println!("SLASH / null");
                 }
             }
+            '"' => {
+                let mut string_literal = vec![];
+
+                loop {
+                    if let Some(&peeked_next_lexeme) = lexemes.peek() {
+                        if peeked_next_lexeme == '"' {
+                            break;
+                        }
+
+                        if let Some(actual_next_lexeme) = lexemes.next() {
+                            if actual_next_lexeme == '\n' {
+                                error_line_number += 1;
+                            }
+                            string_literal.push(actual_next_lexeme);
+                        }
+                    } else {
+                        had_error = true;
+                        eprintln!("[line {}] Error: Unterminated string.", error_line_number);
+                        break;
+                    }
+                }
+
+                // advance over the closing '"'
+                lexemes.next();
+
+                let string_literal: String = string_literal.into_iter().collect();
+                if !string_literal.is_empty() && !had_error {
+                    println!("STRING \"{}\" {}", string_literal, string_literal);
+                }
+            }
             other_lexeme => {
                 if other_lexeme.is_whitespace() {
                     if other_lexeme == '\n' {
