@@ -10,13 +10,14 @@ macro_rules! two_chars {
         if let Some(next_lexeme) = $lexemes.peek() {
             match next_lexeme {
                 $second => {
-                    println!("{}", $token);
+                    let token = format!("{}", $token);
+                    add_token(token.as_str());
                     $lexemes.next();
                 }
-                _ => println!($default),
+                _ => add_token($default),
             }
         } else {
-            println!($default);
+            add_token($default);
         }
     }};
 }
@@ -49,6 +50,10 @@ fn main() {
     }
 }
 
+fn add_token(token: &str) {
+    println!("{token}");
+}
+
 fn tokenizer(file_contents: String) {
     let mut had_error = false;
     let mut error_line_number = 1;
@@ -56,16 +61,16 @@ fn tokenizer(file_contents: String) {
     let mut lexemes = file_contents.chars().peekable();
     while let Some(lexeme) = lexemes.next() {
         match lexeme {
-            '(' => println!("LEFT_PAREN ( null"),
-            ')' => println!("RIGHT_PAREN ) null"),
-            '{' => println!("LEFT_BRACE {{ null"),
-            '}' => println!("RIGHT_BRACE }} null"),
-            ',' => println!("COMMA , null"),
-            '.' => println!("DOT . null"),
-            '-' => println!("MINUS - null"),
-            '+' => println!("PLUS + null"),
-            ';' => println!("SEMICOLON ; null"),
-            '*' => println!("STAR * null"),
+            '(' => add_token("LEFT_PAREN ( null"),
+            ')' => add_token("RIGHT_PAREN ) null"),
+            '{' => add_token("LEFT_BRACE { null"),
+            '}' => add_token("RIGHT_BRACE } null"),
+            ',' => add_token("COMMA , null"),
+            '.' => add_token("DOT . null"),
+            '-' => add_token("MINUS - null"),
+            '+' => add_token("PLUS + null"),
+            ';' => add_token("SEMICOLON ; null"),
+            '*' => add_token("STAR * null"),
             '=' => two_chars!('=', "EQUAL_EQUAL == null", "EQUAL = null", lexemes),
             '!' => two_chars!('=', "BANG_EQUAL != null", "BANG ! null", lexemes),
             '<' => two_chars!('=', "LESS_EQUAL <= null", "LESS < null", lexemes),
@@ -82,10 +87,10 @@ fn tokenizer(file_contents: String) {
                                 }
                             }
                         }
-                        _ => println!("SLASH / null"),
+                        _ => add_token("SLASH / null"),
                     }
                 } else {
-                    println!("SLASH / null");
+                    add_token("SLASH / null");
                 }
             }
             '"' => {
@@ -115,7 +120,8 @@ fn tokenizer(file_contents: String) {
 
                 let string_literal: String = string_literal.into_iter().collect();
                 if !string_literal.is_empty() && !had_error {
-                    println!("STRING \"{}\" {}", string_literal, string_literal);
+                    let token = format!("STRING \"{}\" {}", string_literal, string_literal);
+                    add_token(token.as_str());
                 }
             }
             other_lexeme => {
