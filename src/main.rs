@@ -1,4 +1,5 @@
 #![allow(clippy::explicit_write)]
+use multipeek::multipeek;
 use std::env;
 use std::fs;
 use std::io::{self, Write};
@@ -58,7 +59,7 @@ fn tokenizer(file_contents: String) {
     let mut had_error = false;
     let mut error_line_number = 1;
 
-    let mut lexemes = file_contents.chars().peekable();
+    let mut lexemes = multipeek(file_contents.chars());
     while let Some(lexeme) = lexemes.next() {
         match lexeme {
             '(' => add_token("LEFT_PAREN ( null"),
@@ -130,6 +131,57 @@ fn tokenizer(file_contents: String) {
                         error_line_number += 1;
                     }
                     continue;
+                } else if other_lexeme.is_ascii_digit() {
+                    let mut number_literal = vec![other_lexeme];
+                    let mut with_radix_point = false;
+
+                    while let Some(&peeked_next_lexeme) = lexemes.peek() {
+                        if peeked_next_lexeme.is_ascii_digit() {
+                            if let Some(actual_next_lexeme) = lexemes.next() {
+                                number_literal.push(actual_next_lexeme);
+                                continue;
+                            }
+                        }
+
+                        if peeked_next_lexeme != '.' {
+                            break;
+                        }
+
+                        if let Some(&peeked_next_next_lexeme) = lexemes.peek_nth(1) {
+                            if !(peeked_next_next_lexeme.is_ascii_digit()
+                                && peeked_next_lexeme == '.'
+                                && !with_radix_point)
+                            {
+                                continue;
+                            }
+
+                            if let Some(radix_point) = lexemes.next() {
+                                with_radix_point = true;
+                                number_literal.push(radix_point);
+                            }
+                        }
+                    }
+
+                    // integers are coerced to floats
+                    let float_literal: String = if !number_literal.contains(&'.') {
+                        // strip trailing zeros
+                        while let Some(&'0') = number_literal.last() {
+                            number_literal.pop();
+                        }
+
+                        [number_literal.clone(), vec!['.', '0']]
+                            .concat()
+                            .into_iter()
+                            .collect()
+                    } else {
+                        number_literal.clone().into_iter().collect()
+                    };
+
+                    let number_literal: String = number_literal.into_iter().collect();
+                    if !number_literal.is_empty() && !had_error {
+                        let token = format!("NUMBER {} {}", number_literal, float_literal);
+                        add_token(token.as_str());
+                    }
                 } else {
                     dbg!(other_lexeme, error_line_number);
                     had_error = true;
